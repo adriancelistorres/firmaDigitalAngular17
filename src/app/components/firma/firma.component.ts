@@ -70,28 +70,35 @@ export class FirmaComponent implements OnInit {
 
   async createPdfWithImage() {
     const pdfDoc = await PDFDocument.create();
-    const page = pdfDoc.addPage();
+  const page = pdfDoc.addPage();
 
-    const signatureImage = await pdfDoc.embedPng(
-      this.canvas.nativeElement.toDataURL()
-    );
-    const { width, height } = signatureImage.scale(0.5);
+  // Agregar texto "dni:71328491" encima de la firma
+  page.drawText('1', {
+    x: 100, // Ajusta la posición X según sea necesario
+    y: page.getHeight() - 50, // Ajusta la posición Y según sea necesario
+    size: 12, // Tamaño de la fuente
+  });
 
-    page.drawImage(signatureImage, {
-      x: 100,
-      y: page.getHeight() - height - 100,
-      width,
-      height,
-    });
+  const signatureImage = await pdfDoc.embedPng(
+    this.canvas.nativeElement.toDataURL()
+  );
+  const { width, height } = signatureImage.scale(0.5);
 
-    const pdfBytes = await pdfDoc.save();
-    console.log('BASE64 de la firma:', this.canvas.nativeElement.toDataURL());
+  page.drawImage(signatureImage, {
+    x: 100,
+    y: page.getHeight() - height - 100,
+    width,
+    height,
+  });
 
-    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-    const link = document.createElement('a');
-    link.href = window.URL.createObjectURL(blob);
-    link.download = 'firma.pdf';
-    link.click();
+  const pdfBytes = await pdfDoc.save();
+  console.log('BASE64 de la firma:', this.canvas.nativeElement.toDataURL());
+
+  const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+  const link = document.createElement('a');
+  link.href = window.URL.createObjectURL(blob);
+  link.download = 'firma.pdf';
+  link.click();
   }
 
   clearCanvas() {
